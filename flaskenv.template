@@ -1,0 +1,4 @@
+# Flask App Configuration
+FLASK_APP=yourapp.py
+FLASK_DEBUG=True
+FLASK_ENV=development
