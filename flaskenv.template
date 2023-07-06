@@ -2,3 +2,6 @@
 FLASK_APP=yourapp.py
 FLASK_DEBUG=True
 FLASK_ENV=development
+
+# Database
+DATABASE_PATH=yourdatabasepath
