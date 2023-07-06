@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, request
 import sqlite3
 import os
 
@@ -7,7 +7,7 @@ app = Flask(__name__)
 database_path = os.getenv("DATABASE_PATH")
 
 def connect_db():
-    sql = sqlite3.connect("")
+    sql = sqlite3.connect(database_path)
     sql.row_factory = sqlite3.Row
     return sql
 
@@ -31,6 +31,9 @@ def view():
     return render_template("day.html")
     
 
-@app.route("/food")
+@app.route("/food", methods=["GET", "POST"])
 def food():
+    if request.method == "POST":
+        return f"<h1>Food: {request.form['food-name']} Fat: {request.form['fat']} Carbohydrates: {request.form['carbohydrates']}\
+            Protein: {request.form['protein']}</>"
     return render_template("add_food.html")
