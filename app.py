@@ -50,9 +50,14 @@ def index():
     return render_template("home.html", results=pretty_results)
 
 
-@app.route("/view")
-def view():
-    return render_template("day.html")
+@app.route("/view/<date>")
+def view(date):
+    db = get_db()
+    cur = db.execute('select entry_date from log_date where entry_date = ?', [date])
+    results = cur.fetchone()
+
+    return f"<h1>The date is {results['entry_date']}<h1>"
+    # return render_template("day.html")
     
 
 @app.route("/food", methods=["GET", "POST"])
