@@ -3,6 +3,7 @@ from datetime import datetime as dt
 import sqlite3
 import os
 
+# Flask object
 app = Flask(__name__)
 
 database_path = os.getenv("DATABASE_PATH")
@@ -33,7 +34,21 @@ def index():
         
         db.execute('insert into log_date (entry_date) values (?)', [final_db_date])
         db.commit()
-    return render_template("home.html")
+
+    cur = db.execute('select entry_date from log_date order by entry_date desc')
+    results = cur.fetchall()
+
+    pretty_results = []
+    for result in results:
+        single_date = {}
+
+        d = dt.strptime(str(result['entry_date']), '%Y%m%d')
+        single_date['entry_date'] = dt.strftime(d, '%B %d, %Y')
+
+        pretty_results.append(single_date)
+
+    return render_template("home.html", results=pretty_results)
+
 
 @app.route("/view")
 def view():
