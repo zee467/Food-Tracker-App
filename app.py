@@ -54,10 +54,12 @@ def index():
 def view(date):
     db = get_db()
     cur = db.execute('select entry_date from log_date where entry_date = ?', [date])
-    results = cur.fetchone()
+    result = cur.fetchone()
 
-    return f"<h1>The date is {results['entry_date']}<h1>"
-    # return render_template("day.html")
+    d = dt.strptime(str(result['entry_date']), '%Y%m%d')
+    pretty_date = dt.strftime(d, '%B %d, %Y')
+
+    return render_template("day.html", pretty_date=pretty_date)
     
 
 @app.route("/food", methods=["GET", "POST"])
