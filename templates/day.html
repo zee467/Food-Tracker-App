@@ -41,9 +41,10 @@
 
             <div class="panel-body">
 
-              <form method="POST" action="{{ url_for('view', date='20230512') }}">
+              <form method="POST" action="{{ url_for('view', date='20230612') }}">
                 <div class="form-group">
                   <select class="form-control" name="food-select">
+                    {# all the food are passed as options #}
                     {% for food in food_results %}
                       <option value="{{ food.id }}">{{ food.name }}</option>
                     {% endfor %}
