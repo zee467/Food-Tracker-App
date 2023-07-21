@@ -1,23 +1,9 @@
 from flask import Flask, render_template, g, request
 from datetime import datetime as dt
-import sqlite3
-import os
+from database import get_db
 
 # Flask object
 app = Flask(__name__)
-
-database_path = os.getenv("DATABASE_PATH")
-
-# connects the web app to the database
-def connect_db():
-    sql = sqlite3.connect(database_path)
-    sql.row_factory = sqlite3.Row
-    return sql
-
-def get_db():
-    if not hasattr(g, 'sqlite_db'):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
 
 # close database connection
 @app.teardown_appcontext
@@ -31,18 +17,21 @@ def index():
     db = get_db()
 
     if request.method == "POST":
+        # converts the date to an object 
         database_date = dt.strptime(request.form["date"], "%Y-%m-%d")
+        # converts the date object to a string
         final_db_date = dt.strftime(database_date, "%Y%m%d")
         
         db.execute('insert into log_date (entry_date) values (?)', [final_db_date])
         db.commit()
 
     # sums all the values for a day
-    cur = db.execute('select log_date.entry_date, sum(food.protein) as protein, sum(food.carbohydrates) as carbs, sum(food.fat) as fat, sum(food.calories) as calories from log_date left join food_date on food_date.log_date_id = log_date.id left join food on food.id = food_date.food_id group by log_date.id order by log_date.entry_date desc')
+    cur = db.execute('select ld.entry_date, sum(f.protein) as protein, sum(f.carbohydrates) as carbs, sum(f.fat) as fat, sum(f.calories) as calories from log_date as ld left join food_date as fd on fd.log_date_id = ld.id left join food as f on f.id = fd.food_id group by ld.id order by ld.entry_date desc')
     results = cur.fetchall()
 
     date_results = []
     for result in results:
+        # creates a dict for each date and stores the sum of food class and modify the date
         single_date = {}
 
         single_date['entry_date'] = result['entry_date']
@@ -107,6 +96,7 @@ def food():
         db.execute('insert into food (name, protein, carbohydrates, fat, calories) values (?, ?, ?, ?, ?)', [food, protein, carbohydrates, fat, calories])
         db.commit()
 
+    # each row/record is taken as an object.
     cur = db.execute("select name, protein, carbohydrates, fat, calories from food")
     results = cur.fetchall()
     return render_template("add_food.html", results=results)
